@@ -27,6 +27,7 @@ export async function listProviders(
   ][];
 
   for (const [name, provider] of providerEntries) {
+    if (!provider) continue;
     const isCurrent = name === config.currentProvider;
     const marker = isCurrent ? chalk.green('●') : chalk.gray('○');
     const displayName = isCurrent ? chalk.cyan.bold(name) : chalk.white(name);

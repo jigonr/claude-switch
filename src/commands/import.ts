@@ -54,12 +54,13 @@ export async function importFromBash(): Promise<void> {
   const config = await manager.load(); // Gets default or existing
 
   // Update z.ai provider with imported model settings
-  config.providers['z.ai'].settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL =
-    glmConfig.model;
-  config.providers['z.ai'].settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL =
-    glmConfig.model;
-  config.providers['z.ai'].settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL =
-    glmConfig.model_haiku;
+  const zaiProvider = config.providers['z.ai'];
+  if (zaiProvider) {
+    zaiProvider.settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL = glmConfig.model;
+    zaiProvider.settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL = glmConfig.model;
+    zaiProvider.settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL =
+      glmConfig.model_haiku;
+  }
 
   await manager.save(config);
 

@@ -212,7 +212,11 @@ export class ConfigManager {
     };
 
     // Write settings
-    await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf-8');
+    await fs.writeFile(
+      settingsPath,
+      JSON.stringify(settings, null, 2),
+      'utf-8',
+    );
 
     logger.debug(`Wrote settings to ${settingsPath}`);
   }
