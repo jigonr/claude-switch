@@ -134,13 +134,13 @@ jobs:
             ## Installation
 
             ```bash
-            npm install -g @j-i-gonzalez-rojas/claude-switch@${{ steps.version.outputs.VERSION }}
+            npm install -g @jigonr/claude-switch@${{ steps.version.outputs.VERSION }}
             ```
 
             or
 
             ```bash
-            bun add -g @j-i-gonzalez-rojas/claude-switch@${{ steps.version.outputs.VERSION }}
+            bun add -g @jigonr/claude-switch@${{ steps.version.outputs.VERSION }}
             ```
           files: |
             dist/**

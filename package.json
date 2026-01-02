@@ -1,5 +1,5 @@
 {
-  "name": "@j-i-gonzalez-rojas/claude-switch",
+  "name": "@jigonr/claude-switch",
   "version": "0.1.0",
   "description": "Simple API provider switcher for Claude Code CLI",
   "type": "module",
