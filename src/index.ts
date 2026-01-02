@@ -5,14 +5,14 @@
  * Entry point for the CLI
  */
 
-import { Command } from 'commander';
 import chalk from 'chalk';
-import { switchProvider, getStatus } from './commands/switch.js';
-import { listProviders } from './commands/list.js';
+import { Command } from 'commander';
 import { importFromBash } from './commands/import.js';
+import { listProviders } from './commands/list.js';
+import { getStatus, switchProvider } from './commands/switch.js';
 import { ProviderNameSchema } from './config/schema.js';
-import { logger } from './utils/logger.js';
 import { ClaudeSwitchError } from './utils/errors.js';
+import { logger } from './utils/logger.js';
 
 const program = new Command();
 
@@ -23,8 +23,11 @@ program
 
 // Switch provider command (default action)
 program
-  .argument('[provider]', 'Provider to switch to (claude-pro-max, anthropic, z.ai)')
-  .option('--local', 'Use project-specific config (don\'t update global)')
+  .argument(
+    '[provider]',
+    'Provider to switch to (claude-pro-max, anthropic, z.ai)',
+  )
+  .option('--local', "Use project-specific config (don't update global)")
   .option('--json', 'Output in JSON format')
   .action(async (provider, options) => {
     try {
@@ -70,7 +73,7 @@ program
   .alias('ls')
   .description('List all available providers')
   .option('--json', 'Output in JSON format')
-  .action(async (options) => {
+  .action(async options => {
     try {
       await listProviders(options);
     } catch (error) {
@@ -84,7 +87,7 @@ program
   .command('status')
   .description('Show current provider status')
   .option('--json', 'Output in JSON format')
-  .action(async (options) => {
+  .action(async options => {
     try {
       const status = await getStatus();
       if (options.json) {

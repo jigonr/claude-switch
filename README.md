@@ -5,8 +5,11 @@
 A lightweight, secure CLI tool to seamlessly switch between different API providers for Claude Code: Claude Pro subscription, Anthropic API, and z.ai (GLM models).
 
 [![CI](https://github.com/jigonr/claude-switch/workflows/CI/badge.svg)](https://github.com/jigonr/claude-switch/actions)
+[![codecov](https://codecov.io/gh/jigonr/claude-switch/branch/main/graph/badge.svg)](https://codecov.io/gh/jigonr/claude-switch)
 [![npm version](https://badge.fury.io/js/%40jigonr%2Fclaude-switch.svg)](https://www.npmjs.com/package/@jigonr/claude-switch)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+> Built for [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code)
 
 ## Features
 

@@ -9,7 +9,9 @@ import type { ProviderName } from '../config/schema.js';
 /**
  * List all available providers
  */
-export async function listProviders(options: { json?: boolean } = {}): Promise<void> {
+export async function listProviders(
+  options: { json?: boolean } = {},
+): Promise<void> {
   const config = await loadConfigWithOverride();
 
   if (options.json) {

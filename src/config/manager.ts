@@ -4,11 +4,15 @@
  */
 
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import os from 'node:os';
-import { ConfigSchema, ProjectConfigSchema, type Config, type ProjectConfig, type ProviderName } from './schema.js';
-import { ClaudeSwitchError, ErrorCode, SecurityError } from '../utils/errors.js';
+import path from 'node:path';
+import {
+  ClaudeSwitchError,
+  ErrorCode,
+  SecurityError,
+} from '../utils/errors.js';
 import { logger } from '../utils/logger.js';
+import { type Config, ConfigSchema, type ProviderName } from './schema.js';
 
 export class ConfigManager {
   private configPath: string;
@@ -118,7 +122,7 @@ export class ConfigManager {
             },
           },
         },
-        'anthropic': {
+        anthropic: {
           type: 'api',
           description: 'Anthropic official API',
           settings: {

@@ -2,12 +2,12 @@
  * Integration tests for claude-switch CLI
  */
 
-import { test } from 'node:test';
 import assert from 'node:assert';
 import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 
 const execAsync = promisify(exec);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -51,7 +51,7 @@ test.skip('CLI list --json outputs valid JSON', async () => {
 
   const providers = JSON.parse(jsonMatch[0]);
   assert.ok(providers['claude-pro-max']);
-  assert.ok(providers['anthropic']);
+  assert.ok(providers.anthropic);
   assert.ok(providers['z.ai']);
 });
 

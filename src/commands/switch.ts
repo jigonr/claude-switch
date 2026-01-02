@@ -4,11 +4,11 @@
  */
 
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import os from 'node:os';
-import { type Config, type ProviderName } from '../config/schema.js';
-import { ConfigManager } from '../config/manager.js';
+import path from 'node:path';
 import { loadConfigWithOverride } from '../config/detector.js';
+import { ConfigManager } from '../config/manager.js';
+import type { ProviderName } from '../config/schema.js';
 import { logger } from '../utils/logger.js';
 
 /**

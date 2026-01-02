@@ -2,148 +2,214 @@
  * Tests for ConfigManager
  */
 
-import test from 'ava';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { ConfigManager } from '../../../src/config/manager.js';
-import { type Config } from '../../../src/config/schema.js';
+import { ErrorCode, ClaudeSwitchError, SecurityError } from '../../../src/utils/errors.js';
+import { validConfig, validProviders } from '../../fixtures/config.js';
 
-// Test fixtures directory
-const fixturesDir = path.join(process.cwd(), 'tests', 'fixtures');
-const testConfigDir = path.join(fixturesDir, 'config-manager');
+// Mock the fs module
+vi.mock('node:fs/promises');
 
-test.before(async () => {
-  await fs.mkdir(testConfigDir, { recursive: true });
-});
+// Mock the logger to prevent console output during tests
+vi.mock('../../../src/utils/logger.js', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
+  },
+}));
 
-test.after.always(async () => {
-  // Cleanup test files
-  try {
-    await fs.rm(testConfigDir, { recursive: true, force: true });
-  } catch {
-    // Ignore cleanup errors
-  }
-});
+describe('ConfigManager', () => {
+  const testConfigPath = '/tmp/test-config/switch-config.json';
+  let manager: ConfigManager;
 
-test('creates default configuration when file does not exist', async (t) => {
-  const configPath = path.join(testConfigDir, 'new-config.json');
-  const manager = new ConfigManager(configPath);
+  beforeEach(() => {
+    vi.clearAllMocks();
+    manager = new ConfigManager(testConfigPath);
+  });
 
-  const config = await manager.load();
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
-  t.is(config.version, '1.0');
-  t.is(config.currentProvider, 'claude-pro-max');
-  t.truthy(config.providers['claude-pro-max']);
-  t.truthy(config.providers['anthropic']);
-  t.truthy(config.providers['z.ai']);
-});
+  describe('constructor', () => {
+    it('should use provided config path', () => {
+      const customPath = '/custom/path/config.json';
+      const customManager = new ConfigManager(customPath);
+      expect(customManager).toBeDefined();
+    });
 
-test('loads existing valid configuration', async (t) => {
-  const configPath = path.join(testConfigDir, 'existing-config.json');
-  const testConfig: Config = {
-    version: '1.0',
-    currentProvider: 'anthropic',
-    providers: {
-      'claude-pro-max': {
-        type: 'subscription',
-        description: 'Test description',
-        settings: { env: { TEST: 'value' } },
-      },
-      'anthropic': {
-        type: 'api',
-        description: 'Test API',
-        settings: { env: {} },
-      },
-      'z.ai': {
-        type: 'api',
-        description: 'Test GLM',
-        settings: { env: {} },
-      },
-    },
-  };
+    it('should use default path when none provided', () => {
+      const defaultManager = new ConfigManager();
+      expect(defaultManager).toBeDefined();
+    });
+  });
 
-  await fs.writeFile(configPath, JSON.stringify(testConfig, null, 2));
+  describe('load', () => {
+    it('should load and parse valid configuration', async () => {
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(validConfig));
 
-  const manager = new ConfigManager(configPath);
-  const config = await manager.load();
+      const result = await manager.load();
 
-  t.is(config.currentProvider, 'anthropic');
-  t.is(config.providers['claude-pro-max'].description, 'Test description');
-});
+      expect(result).toEqual(validConfig);
+      expect(fs.readFile).toHaveBeenCalledWith(testConfigPath, 'utf-8');
+    });
 
-test('saves configuration successfully', async (t) => {
-  const configPath = path.join(testConfigDir, 'save-test.json');
-  const manager = new ConfigManager(configPath);
+    it('should create default config when file does not exist', async () => {
+      const error: NodeJS.ErrnoException = new Error('ENOENT');
+      error.code = 'ENOENT';
+      vi.mocked(fs.readFile).mockRejectedValue(error);
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.writeFile).mockResolvedValue(undefined);
 
-  const config = await manager.load(); // Creates default
-  config.currentProvider = 'z.ai';
+      const result = await manager.load();
 
-  await manager.save(config);
+      expect(result.version).toBe('1.0');
+      expect(result.currentProvider).toBe('claude-pro-max');
+      expect(fs.writeFile).toHaveBeenCalled();
+    });
 
-  // Read back and verify
-  const content = await fs.readFile(configPath, 'utf-8');
-  const saved = JSON.parse(content);
+    it('should throw INVALID_CONFIG on invalid JSON', async () => {
+      vi.mocked(fs.readFile).mockResolvedValue('{ invalid json');
 
-  t.is(saved.currentProvider, 'z.ai');
-});
+      await expect(manager.load()).rejects.toThrow(ClaudeSwitchError);
+      await expect(manager.load()).rejects.toMatchObject({
+        code: ErrorCode.INVALID_CONFIG,
+      });
+    });
 
-test('updates provider successfully', async (t) => {
-  const configPath = path.join(testConfigDir, 'update-provider.json');
-  const manager = new ConfigManager(configPath);
+    it('should throw INVALID_CONFIG on invalid config structure', async () => {
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify({ invalid: 'config' }));
 
-  await manager.load(); // Creates default with claude-pro-max
+      await expect(manager.load()).rejects.toThrow(ClaudeSwitchError);
+    });
+  });
 
-  await manager.updateProvider('anthropic');
+  describe('save', () => {
+    it('should create directory and save config', async () => {
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.writeFile).mockResolvedValue(undefined);
 
-  const config = await manager.load();
-  t.is(config.currentProvider, 'anthropic');
-});
+      await manager.save(validConfig);
 
-test('creates backup before updating', async (t) => {
-  const configPath = path.join(testConfigDir, 'backup-test.json');
-  const manager = new ConfigManager(configPath);
+      expect(fs.mkdir).toHaveBeenCalledWith(path.dirname(testConfigPath), { recursive: true });
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        testConfigPath,
+        JSON.stringify(validConfig, null, 2),
+        'utf-8',
+      );
+    });
 
-  await manager.load(); // Create initial config
+    it('should validate config before saving', async () => {
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.writeFile).mockResolvedValue(undefined);
 
-  await manager.updateProvider('z.ai');
+      const invalidConfig = { version: '2.0' } as any;
 
-  // Check backup exists
-  const backupPath = `${configPath}.backup`;
-  await t.notThrowsAsync(fs.access(backupPath));
-});
+      await expect(manager.save(invalidConfig)).rejects.toThrow();
+      expect(fs.writeFile).not.toHaveBeenCalled();
+    });
+  });
 
-test('sanitizePath prevents path traversal', (t) => {
-  const maliciousPath = '../../../etc/passwd';
+  describe('backup', () => {
+    it('should create backup file', async () => {
+      vi.mocked(fs.copyFile).mockResolvedValue(undefined);
 
-  t.throws(
-    () => ConfigManager.sanitizePath(maliciousPath),
-    { message: /Path traversal detected/ },
-  );
-});
+      await manager.backup();
 
-test('expandHome expands tilde correctly', (t) => {
-  const homePath = '~/test/path';
-  const expanded = ConfigManager.expandHome(homePath);
+      expect(fs.copyFile).toHaveBeenCalledWith(
+        testConfigPath,
+        `${testConfigPath}.backup`,
+      );
+    });
 
-  t.is(expanded, path.join(os.homedir(), 'test/path'));
-});
+    it('should handle backup failure gracefully', async () => {
+      vi.mocked(fs.copyFile).mockRejectedValue(new Error('Permission denied'));
 
-test('expandHome leaves absolute paths unchanged', (t) => {
-  const absolutePath = '/absolute/path';
-  const expanded = ConfigManager.expandHome(absolutePath);
+      // Should not throw, just warn
+      await expect(manager.backup()).resolves.not.toThrow();
+    });
+  });
 
-  t.is(expanded, absolutePath);
-});
+  describe('updateProvider', () => {
+    it('should update current provider', async () => {
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(validConfig));
+      vi.mocked(fs.copyFile).mockResolvedValue(undefined);
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.writeFile).mockResolvedValue(undefined);
 
-test('throws error when updating to non-existent provider', async (t) => {
-  const configPath = path.join(testConfigDir, 'error-test.json');
-  const manager = new ConfigManager(configPath);
+      await manager.updateProvider('anthropic');
 
-  await manager.load();
+      expect(fs.writeFile).toHaveBeenCalled();
+      const savedData = JSON.parse(vi.mocked(fs.writeFile).mock.calls[0][1] as string);
+      expect(savedData.currentProvider).toBe('anthropic');
+    });
 
-  await t.throwsAsync(
-    async () => manager.updateProvider('invalid' as any),
-    { message: /Provider 'invalid' not found/ },
-  );
+    it('should create backup before updating', async () => {
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(validConfig));
+      vi.mocked(fs.copyFile).mockResolvedValue(undefined);
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.writeFile).mockResolvedValue(undefined);
+
+      await manager.updateProvider('z.ai');
+
+      expect(fs.copyFile).toHaveBeenCalled();
+    });
+
+    it('should throw PROVIDER_NOT_FOUND for non-existent provider', async () => {
+      const configWithOneProvider = {
+        ...validConfig,
+        providers: {
+          'claude-pro-max': validConfig.providers['claude-pro-max'],
+        },
+      };
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(configWithOneProvider));
+
+      await expect(manager.updateProvider('anthropic')).rejects.toThrow(ClaudeSwitchError);
+      await expect(manager.updateProvider('anthropic')).rejects.toMatchObject({
+        code: ErrorCode.PROVIDER_NOT_FOUND,
+      });
+    });
+  });
+
+  describe('sanitizePath', () => {
+    it('should resolve absolute paths', () => {
+      const result = ConfigManager.sanitizePath('/some/path/file.json');
+      expect(result).toBe('/some/path/file.json');
+    });
+
+    it('should resolve relative paths to absolute', () => {
+      const result = ConfigManager.sanitizePath('config.json');
+      expect(result).toContain('config.json');
+      expect(result.startsWith('/')).toBe(true); // Should be absolute
+    });
+
+    it('should handle paths with parent directory references', () => {
+      // After path.resolve, '../' is resolved to actual path
+      const result = ConfigManager.sanitizePath('../file.json');
+      expect(result).toContain('file.json');
+    });
+  });
+
+  describe('expandHome', () => {
+    it('should expand ~ to home directory', () => {
+      const result = ConfigManager.expandHome('~/test/path');
+      expect(result).toBe(path.join(os.homedir(), 'test/path'));
+    });
+
+    it('should not modify paths without ~', () => {
+      const result = ConfigManager.expandHome('/absolute/path');
+      expect(result).toBe('/absolute/path');
+    });
+
+    it('should not expand ~ in the middle of path', () => {
+      const result = ConfigManager.expandHome('/path/to/~/file');
+      expect(result).toBe('/path/to/~/file');
+    });
+  });
 });

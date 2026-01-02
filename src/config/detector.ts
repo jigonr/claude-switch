@@ -3,20 +3,22 @@
  */
 
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import os from 'node:os';
-import { ProjectConfigSchema, ConfigSchema, type Config, type ProjectConfig } from './schema.js';
-import { ConfigManager } from './manager.js';
+import path from 'node:path';
 import { logger } from '../utils/logger.js';
+import { ConfigManager } from './manager.js';
+import {
+  type Config,
+  ConfigSchema,
+  type ProjectConfig,
+  ProjectConfigSchema,
+} from './schema.js';
 
 /**
  * Detect project-specific configuration file
  */
 export async function detectConfig(): Promise<string | null> {
-  const configFiles = [
-    './.claude-switch.json',
-    './.claude/config.json',
-  ];
+  const configFiles = ['./.claude-switch.json', './.claude/config.json'];
 
   for (const file of configFiles) {
     try {

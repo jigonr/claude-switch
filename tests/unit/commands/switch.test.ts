@@ -2,39 +2,156 @@
  * Tests for switch command
  */
 
-import test from 'ava';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import fs from 'node:fs/promises';
-import path from 'node:path';
-import { switchProvider, getStatus } from '../../../src/commands/switch.js';
-import { ConfigManager } from '../../../src/config/manager.js';
 
-const fixturesDir = path.join(process.cwd(), 'tests', 'fixtures');
-const testSwitchDir = path.join(fixturesDir, 'switch-command');
+// Mock fs module
+vi.mock('node:fs/promises');
 
-test.before(async () => {
-  await fs.mkdir(testSwitchDir, { recursive: true });
-});
+// Mock logger
+vi.mock('../../../src/utils/logger.js', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
+  },
+}));
 
-test.after.always(async () => {
-  try {
-    await fs.rm(testSwitchDir, { recursive: true, force: true });
-  } catch {
-    // Ignore
-  }
-});
+// Use vi.hoisted to define mock config before vi.mock hoisting
+const { mockConfig } = vi.hoisted(() => ({
+  mockConfig: {
+    version: '1.0',
+    currentProvider: 'claude-pro-max',
+    providers: {
+      'claude-pro-max': {
+        type: 'subscription',
+        description: 'Claude Pro subscription',
+        settings: { env: { API_TIMEOUT_MS: '3000000' } },
+      },
+      'anthropic': {
+        type: 'api',
+        description: 'Anthropic API',
+        settings: { env: { ANTHROPIC_API_KEY: 'test-key' } },
+      },
+      'z.ai': {
+        type: 'api',
+        description: 'z.ai API',
+        settings: { env: { ANTHROPIC_API_KEY: 'zai-key' } },
+      },
+    },
+  },
+}));
 
-test('getStatus returns current provider info', async (t) => {
-  const status = await getStatus();
+// Mock the detector module to return valid config
+vi.mock('../../../src/config/detector.js', () => ({
+  loadConfigWithOverride: vi.fn().mockResolvedValue({
+    version: '1.0',
+    currentProvider: 'claude-pro-max',
+    providers: {
+      'claude-pro-max': {
+        type: 'subscription',
+        description: 'Claude Pro subscription',
+        settings: { env: { API_TIMEOUT_MS: '3000000' } },
+      },
+      'anthropic': {
+        type: 'api',
+        description: 'Anthropic API',
+        settings: { env: { ANTHROPIC_API_KEY: 'test-key' } },
+      },
+      'z.ai': {
+        type: 'api',
+        description: 'z.ai API',
+        settings: { env: { ANTHROPIC_API_KEY: 'zai-key' } },
+      },
+    },
+  }),
+  detectConfig: vi.fn().mockResolvedValue(null),
+  hasProjectConfig: vi.fn().mockResolvedValue(false),
+}));
 
-  t.truthy(status.provider);
-  t.truthy(status.description);
-  t.truthy(status.type);
-  t.true(['subscription', 'api'].includes(status.type));
-});
+// Mock ConfigManager
+vi.mock('../../../src/config/manager.js', () => ({
+  ConfigManager: vi.fn().mockImplementation(() => ({
+    load: vi.fn().mockResolvedValue({
+      version: '1.0',
+      currentProvider: 'claude-pro-max',
+      providers: {
+        'claude-pro-max': {
+          type: 'subscription',
+          description: 'Claude Pro subscription',
+          settings: { env: { API_TIMEOUT_MS: '3000000' } },
+        },
+        'anthropic': {
+          type: 'api',
+          description: 'Anthropic API',
+          settings: { env: { ANTHROPIC_API_KEY: 'test-key' } },
+        },
+        'z.ai': {
+          type: 'api',
+          description: 'z.ai API',
+          settings: { env: { ANTHROPIC_API_KEY: 'zai-key' } },
+        },
+      },
+    }),
+    save: vi.fn().mockResolvedValue(undefined),
+    updateProvider: vi.fn().mockResolvedValue(undefined),
+  })),
+}));
 
-test('switchProvider throws error for invalid provider', async (t) => {
-  await t.throwsAsync(
-    async () => switchProvider('invalid' as any),
-    { message: /not found/ },
-  );
+// Import after mocks
+import { getStatus, switchProvider } from '../../../src/commands/switch.js';
+
+describe('Switch Command', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('getStatus', () => {
+    it('should return current provider info', async () => {
+      const status = await getStatus();
+
+      expect(status.provider).toBeDefined();
+      expect(status.description).toBeDefined();
+      expect(status.type).toBeDefined();
+      expect(['subscription', 'api']).toContain(status.type);
+    });
+
+    it('should return provider name', async () => {
+      const status = await getStatus();
+
+      expect(status.provider).toBe('claude-pro-max');
+    });
+
+    it('should return provider type', async () => {
+      const status = await getStatus();
+
+      expect(status.type).toBe('subscription');
+    });
+  });
+
+  describe('switchProvider', () => {
+    it('should throw error for invalid provider', async () => {
+      await expect(switchProvider('invalid' as any)).rejects.toThrow(/not found/);
+    });
+
+    it('should switch to valid provider', async () => {
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.readFile).mockRejectedValue(new Error('ENOENT'));
+      vi.mocked(fs.writeFile).mockResolvedValue(undefined);
+
+      await expect(switchProvider('anthropic')).resolves.not.toThrow();
+    });
+
+    it('should write settings file when switching', async () => {
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.readFile).mockRejectedValue(new Error('ENOENT'));
+      vi.mocked(fs.writeFile).mockResolvedValue(undefined);
+
+      await switchProvider('z.ai');
+
+      expect(fs.writeFile).toHaveBeenCalled();
+    });
+  });
 });
