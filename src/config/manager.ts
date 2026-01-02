@@ -7,6 +7,11 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import {
+  CLAUDE_DIR_NAME,
+  CONFIG_FILE_NAME,
+  SETTINGS_FILE_NAME,
+} from '../core/constants.js';
+import {
   ClaudeSwitchError,
   ErrorCode,
   SecurityError,
@@ -25,7 +30,14 @@ export class ConfigManager {
    * Get default global config path
    */
   private getDefaultPath(): string {
-    return path.join(os.homedir(), '.claude', 'switch-config.json');
+    return path.join(os.homedir(), CLAUDE_DIR_NAME, CONFIG_FILE_NAME);
+  }
+
+  /**
+   * Get Claude Code settings file path
+   */
+  getSettingsPath(): string {
+    return path.join(os.homedir(), CLAUDE_DIR_NAME, SETTINGS_FILE_NAME);
   }
 
   /**
@@ -172,5 +184,36 @@ export class ConfigManager {
       return path.join(os.homedir(), filepath.slice(2));
     }
     return filepath;
+  }
+
+  /**
+   * Write environment settings to Claude Code settings.json
+   */
+  async writeClaudeSettings(env: Record<string, string>): Promise<void> {
+    const settingsPath = this.getSettingsPath();
+
+    // Ensure directory exists
+    const dir = path.dirname(settingsPath);
+    await fs.mkdir(dir, { recursive: true });
+
+    // Read existing settings or create new
+    let settings: { env?: Record<string, string> } = {};
+    try {
+      const content = await fs.readFile(settingsPath, 'utf-8');
+      settings = JSON.parse(content);
+    } catch {
+      // File doesn't exist or is invalid, start fresh
+    }
+
+    // Merge environment settings
+    settings.env = {
+      ...settings.env,
+      ...env,
+    };
+
+    // Write settings
+    await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf-8');
+
+    logger.debug(`Wrote settings to ${settingsPath}`);
   }
 }

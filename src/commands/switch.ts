@@ -3,9 +3,6 @@
  * Writes configuration to ~/.claude/settings.json
  */
 
-import fs from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
 import { loadConfigWithOverride } from '../config/detector.js';
 import { ConfigManager } from '../config/manager.js';
 import type { ProviderName } from '../config/schema.js';
@@ -18,6 +15,8 @@ export async function switchProvider(
   providerName: ProviderName,
   options: { local?: boolean } = {},
 ): Promise<void> {
+  const manager = new ConfigManager();
+
   // Load configuration (with project override if exists)
   const config = await loadConfigWithOverride();
 
@@ -28,49 +27,15 @@ export async function switchProvider(
   }
 
   // Write to Claude Code settings file
-  const settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
-  await writeClaudeSettings(settingsPath, provider.settings.env);
+  await manager.writeClaudeSettings(provider.settings.env);
 
   // Update current provider in global config (unless using project override)
   if (!options.local) {
-    const manager = new ConfigManager();
     await manager.updateProvider(providerName);
   }
 
   logger.success(`Switched to ${providerName} (${provider.description})`);
-  logger.info(`Settings written to ${settingsPath}`);
-}
-
-/**
- * Write environment settings to Claude Code settings.json
- */
-async function writeClaudeSettings(
-  settingsPath: string,
-  env: Record<string, string>,
-): Promise<void> {
-  // Ensure directory exists
-  const dir = path.dirname(settingsPath);
-  await fs.mkdir(dir, { recursive: true });
-
-  // Read existing settings or create new
-  let settings: { env?: Record<string, string> } = {};
-  try {
-    const content = await fs.readFile(settingsPath, 'utf-8');
-    settings = JSON.parse(content);
-  } catch {
-    // File doesn't exist or is invalid, start fresh
-  }
-
-  // Merge environment settings
-  settings.env = {
-    ...settings.env,
-    ...env,
-  };
-
-  // Write settings
-  await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf-8');
-
-  logger.debug(`Wrote settings to ${settingsPath}`);
+  logger.info(`Settings written to ${manager.getSettingsPath()}`);
 }
 
 /**

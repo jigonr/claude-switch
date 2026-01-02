@@ -212,4 +212,70 @@ describe('ConfigManager', () => {
       expect(result).toBe('/path/to/~/file');
     });
   });
+
+  describe('getSettingsPath', () => {
+    it('should return the Claude settings path', () => {
+      const result = manager.getSettingsPath();
+      expect(result).toBe(path.join(os.homedir(), '.claude', 'settings.json'));
+    });
+  });
+
+  describe('writeClaudeSettings', () => {
+    it('should create directory and write settings', async () => {
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.readFile).mockRejectedValue(new Error('ENOENT'));
+      vi.mocked(fs.writeFile).mockResolvedValue(undefined);
+
+      await manager.writeClaudeSettings({ API_KEY: 'test-key' });
+
+      expect(fs.mkdir).toHaveBeenCalledWith(
+        path.join(os.homedir(), '.claude'),
+        { recursive: true },
+      );
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        path.join(os.homedir(), '.claude', 'settings.json'),
+        JSON.stringify({ env: { API_KEY: 'test-key' } }, null, 2),
+        'utf-8',
+      );
+    });
+
+    it('should merge with existing settings', async () => {
+      const existingSettings = { env: { EXISTING: 'value' }, other: 'data' };
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(existingSettings));
+      vi.mocked(fs.writeFile).mockResolvedValue(undefined);
+
+      await manager.writeClaudeSettings({ NEW_KEY: 'new-value' });
+
+      const writtenData = JSON.parse(vi.mocked(fs.writeFile).mock.calls[0][1] as string);
+      expect(writtenData.env).toEqual({
+        EXISTING: 'value',
+        NEW_KEY: 'new-value',
+      });
+      expect(writtenData.other).toBe('data');
+    });
+
+    it('should overwrite existing env values', async () => {
+      const existingSettings = { env: { API_KEY: 'old-key' } };
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(existingSettings));
+      vi.mocked(fs.writeFile).mockResolvedValue(undefined);
+
+      await manager.writeClaudeSettings({ API_KEY: 'new-key' });
+
+      const writtenData = JSON.parse(vi.mocked(fs.writeFile).mock.calls[0][1] as string);
+      expect(writtenData.env.API_KEY).toBe('new-key');
+    });
+
+    it('should handle invalid JSON in existing file', async () => {
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.readFile).mockResolvedValue('{ invalid json');
+      vi.mocked(fs.writeFile).mockResolvedValue(undefined);
+
+      await manager.writeClaudeSettings({ API_KEY: 'test-key' });
+
+      const writtenData = JSON.parse(vi.mocked(fs.writeFile).mock.calls[0][1] as string);
+      expect(writtenData.env).toEqual({ API_KEY: 'test-key' });
+    });
+  });
 });
