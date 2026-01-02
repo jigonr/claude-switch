@@ -4,15 +4,15 @@
   "description": "Simple API provider switcher for Claude Code CLI",
   "type": "module",
   "license": "MIT",
-  "author": "J.I. Gonzalez-Rojas <your-email@example.com>",
+  "author": "J.I. Gonzalez-Rojas",
   "repository": {
     "type": "git",
-    "url": "https://github.com/j-i-gonzalez-rojas/claude-switch.git"
+    "url": "https://github.com/jigonr/claude-switch.git"
   },
   "bugs": {
-    "url": "https://github.com/j-i-gonzalez-rojas/claude-switch/issues"
+    "url": "https://github.com/jigonr/claude-switch/issues"
   },
-  "homepage": "https://github.com/j-i-gonzalez-rojas/claude-switch#readme",
+  "homepage": "https://github.com/jigonr/claude-switch#readme",
   "keywords": [
     "claude",
     "cli",
@@ -67,7 +67,7 @@
     "husky": "^9.1.7",
     "ink-testing-library": "^4.0.0",
     "lint-staged": "^15.3.0",
-    "publint": "^0.2.15",
+    "publint": "^0.2.11",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"

@@ -8,11 +8,8 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   dts: true,
-  shims: true,
+  shims: false,
   splitting: false,
   treeshake: true,
   minify: false,
-  banner: {
-    js: '#!/usr/bin/env node\n',
-  },
 });
