@@ -4,9 +4,8 @@
 
 [![CI](https://github.com/jigonr/claude-switch/workflows/CI/badge.svg)](https://github.com/jigonr/claude-switch/actions)
 [![codecov](https://codecov.io/gh/jigonr/claude-switch/branch/main/graph/badge.svg)](https://codecov.io/gh/jigonr/claude-switch)
+[![Docs](https://img.shields.io/badge/docs-jigonzalez.com-blue)](https://jigonzalez.com/claude-switch/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-📚 **[Documentation](https://jigonzalez.com/claude-switch/)**
 
 ## Features
 
@@ -41,10 +40,6 @@ claude-switch status       # Show detailed status
 | `claude-pro-max` | Subscription | Claude Pro via browser |
 | `anthropic` | API | Anthropic API |
 | `z.ai` | API | z.ai with GLM models |
-
-## Documentation
-
-See **[jigonzalez.com/claude-switch](https://jigonzalez.com/claude-switch/)** for full docs.
 
 ## Development
 
