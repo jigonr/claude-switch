@@ -1,0 +1,66 @@
+site_name: claude-switch
+site_url: https://jigonzalez.com/claude-switch/
+site_description: Simple API provider switcher for Claude Code CLI
+site_author: Jose Ignacio Gonzalez Rojas
+
+repo_name: jigonr/claude-switch
+repo_url: https://github.com/jigonr/claude-switch
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+  - User Guide:
+      - Commands: guide/commands.md
+      - Providers: guide/providers.md
+      - Configuration: guide/configuration.md
+      - Troubleshooting: guide/troubleshooting.md
+  - Reference:
+      - CLI: reference/cli.md
+  - Contributing: contributing.md
+  - Changelog: changelog.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/jigonr/claude-switch
