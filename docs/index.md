@@ -3,7 +3,6 @@
 **Simple API provider switcher for Claude Code CLI.**
 
 [![CI](https://github.com/jigonr/claude-switch/workflows/CI/badge.svg)](https://github.com/jigonr/claude-switch/actions)
-[![GitHub Packages](https://img.shields.io/badge/npm-GitHub%20Packages-blue)](https://github.com/jigonr/claude-switch/packages)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
@@ -11,26 +10,25 @@
 - **🔄 Simple Provider Switching** - Switch between 3 providers with one command
 - **🔒 Security First** - Separate credential storage with proper permissions
 - **📁 Project-Aware** - Auto-detects project-specific configs
-- **⚡ Fast** - Built with Bun and TypeScript for optimal performance
+- **⚡ Fast** - Built with Bun and TypeScript
 - **🛡️ Type-Safe** - Zod schema validation for all configurations
-- **📦 Zero Config** - Works out of the box with sensible defaults
 
 ## Supported Providers
 
 | Provider | Type | Description |
 |----------|------|-------------|
-| **claude-pro-max** | Subscription | Claude Pro via browser authentication |
-| **anthropic** | API | Official Anthropic API |
-| **z.ai** | API | z.ai API with GLM models |
+| `claude-pro-max` | Subscription | Claude Pro via browser authentication |
+| `anthropic` | API | Official Anthropic API |
+| `z.ai` | API | z.ai API with GLM models |
 
 ## Quick Start
 
 ```bash
-# Configure npm for GitHub Packages
-echo "@jigonr:registry=https://npm.pkg.github.com" >> ~/.npmrc
-
 # Install with Bun (recommended)
 bun add -g @jigonr/claude-switch
+
+# Install with npm
+npm install -g @jigonr/claude-switch
 
 # Show current provider
 claude-switch

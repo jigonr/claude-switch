@@ -7,20 +7,11 @@
 
 ## Install with Bun (Recommended)
 
-First, configure npm to use GitHub Packages for the `@jigonr` scope:
-
-```bash
-# Add to your ~/.npmrc
-echo "@jigonr:registry=https://npm.pkg.github.com" >> ~/.npmrc
-```
-
-Then install globally:
-
 ```bash
 bun add -g @jigonr/claude-switch
 ```
 
-## Alternative: Install with npm
+## Install with npm
 
 ```bash
 npm install -g @jigonr/claude-switch
