@@ -5,6 +5,7 @@
  * Entry point for the CLI
  */
 
+import { createRequire } from 'node:module';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { importFromBash } from './commands/import.js';
@@ -14,12 +15,15 @@ import { ProviderNameSchema } from './config/schema.js';
 import { ClaudeSwitchError } from './utils/errors.js';
 import { logger } from './utils/logger.js';
 
+const require = createRequire(import.meta.url);
+const { version } = require('../package.json') as { version: string };
+
 const program = new Command();
 
 program
   .name('claude-switch')
   .description('Simple API provider switcher for Claude Code CLI')
-  .version('0.1.0');
+  .version(version);
 
 // Switch provider command (default action)
 program
