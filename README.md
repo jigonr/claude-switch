@@ -41,6 +41,15 @@ claude-switch status       # Show detailed status
 | `anthropic` | API | Anthropic API |
 | `z.ai` | API | z.ai with GLM models |
 
+## Documentation
+
+Full documentation available at **[jigonzalez.com/claude-switch](https://jigonzalez.com/claude-switch/)**
+
+- [Installation Guide](https://jigonzalez.com/claude-switch/getting-started/installation/)
+- [Quick Start](https://jigonzalez.com/claude-switch/getting-started/quickstart/)
+- [Configuration](https://jigonzalez.com/claude-switch/guide/configuration/)
+- [CLI Reference](https://jigonzalez.com/claude-switch/reference/cli/)
+
 ## Development
 
 ```bash
@@ -57,4 +66,3 @@ MIT © [J.I. Gonzalez-Rojas](https://github.com/jigonr)
 ## Related
 
 - [letta-switch](https://github.com/jigonr/letta-switch) - Configuration manager for Letta CLI
-
