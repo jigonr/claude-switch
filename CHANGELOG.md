@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5](https://github.com/jigonr/claude-switch/compare/claude-switch-v0.1.4...claude-switch-v0.1.5) (2026-01-04)
+
+
+### Features
+
+* **ci:** add Claude Code workflows and yamllint config ([36ede99](https://github.com/jigonr/claude-switch/commit/36ede99819196e53d4ec37d2e72c3a20d377dee5))
+
+
+### Bug Fixes
+
+* use 'ts' instead of 'typescript' for pre-commit types ([40493a3](https://github.com/jigonr/claude-switch/commit/40493a3b51309c6875ac7064087db013dc0163d9))
+
 ## [0.1.4](https://github.com/jigonr/claude-switch/compare/claude-switch-v0.1.3...claude-switch-v0.1.4) (2026-01-03)
 
 
