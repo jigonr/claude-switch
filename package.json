@@ -1,6 +1,6 @@
 {
   "name": "@jigonr/claude-switch",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Simple API provider switcher for Claude Code CLI",
   "type": "module",
   "license": "MIT",
