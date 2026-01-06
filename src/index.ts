@@ -23,7 +23,9 @@ const program = new Command();
 program
   .name('claude-switch')
   .description('Simple API provider switcher for Claude Code CLI')
-  .version(version);
+  .version(version)
+  .enablePositionalOptions()
+  .passThroughOptions();
 
 // Switch provider command (default action)
 program
