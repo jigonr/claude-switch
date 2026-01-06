@@ -1,19 +1,27 @@
 # Commands
 
-## Default Command
+## claude-switch [provider]
+
+Switch to a provider or show current status.
 
 ```bash
-claude-switch [provider]
+claude-switch [provider] [options]
 ```
-
-If no provider is specified, shows the current active provider.
-If a provider is specified, switches to that provider.
 
 ### Arguments
 
-| Argument | Description |
-|----------|-------------|
-| `provider` | Provider name: `claude-pro-max`, `anthropic`, or `z.ai` |
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `provider` | No | Provider to switch to: `claude-pro-max`, `anthropic`, `z.ai` |
+
+If no provider is specified, shows the current active provider.
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--local` | Use project-specific config only (don't update global) |
+| `--json` | Output in JSON format |
 
 ### Examples
 
@@ -21,53 +29,92 @@ If a provider is specified, switches to that provider.
 # Show current provider
 claude-switch
 
-# Switch to anthropic
+# Switch to Anthropic API
 claude-switch anthropic
+
+# Switch locally without updating global config
+claude-switch anthropic --local
+
+# Get status as JSON (for scripts)
+claude-switch --json
 ```
 
-## list
+## claude-switch list
 
-List all available providers and their status.
+List all available providers.
 
 ```bash
-claude-switch list
+claude-switch list [options]
 ```
+
+Aliases: `ls`
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--json` | Output in JSON format |
 
 ### Output
 
 Shows each provider with:
 
-- Name
-- Type (subscription or API)
-- Status (configured or not)
+- Visual indicator for current provider (green bullet)
+- Provider name
+- Description
+- Type (subscription or api)
 
-## status
-
-Show detailed status information.
-
-```bash
-claude-switch status
-```
-
-### Output
-
-- Current active provider
-- Configuration file path
-- Credentials file path
-- API key status (masked)
-
-## --version
-
-Show the installed version.
+### Examples
 
 ```bash
-claude-switch --version
+# List all providers
+claude-switch list
+
+# List as JSON
+claude-switch list --json
 ```
 
-## --help
+## claude-switch status
 
-Show help information.
+Show current provider status (same as running `claude-switch` with no arguments).
 
 ```bash
-claude-switch --help
+claude-switch status [options]
 ```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--json` | Output in JSON format |
+
+## claude-switch import-bash
+
+Import configuration from legacy bash script.
+
+```bash
+claude-switch import-bash
+```
+
+This command migrates from the legacy `glm-config.json` format:
+
+1. Reads `~/.claude/glm-config.json` if it exists
+2. Extracts z.ai API key and model configuration
+3. Creates `~/.claude/credentials/zai.key` with secure permissions
+4. Updates the z.ai provider configuration
+
+Use this if you're migrating from an older bash-based setup.
+
+## Global Options
+
+| Option | Description |
+|--------|-------------|
+| `--version`, `-v` | Show version number |
+| `--help`, `-h` | Show help information |
+
+## Exit Codes
+
+| Code | Description |
+|------|-------------|
+| 0 | Success |
+| 1 | Error (invalid provider, missing config, etc.) |

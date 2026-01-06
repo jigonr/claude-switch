@@ -14,26 +14,42 @@
 
 ### "API key not configured"
 
-**Cause**: Environment variable not set for the selected provider.
+**Cause**: Credential file missing for the selected provider.
 
-**Solution**: Set the appropriate environment variable:
+**Solution**: Create the credential file with your API key:
 
 ```bash
+# Create credentials directory
+mkdir -p ~/.claude/credentials
+
 # For Anthropic
-export ANTHROPIC_API_KEY="your-key"
+echo "your-anthropic-key" > ~/.claude/credentials/anthropic.key
+chmod 600 ~/.claude/credentials/anthropic.key
 
 # For z.ai
-export ZAI_API_KEY="your-key"
+echo "your-zai-key" > ~/.claude/credentials/zai.key
+chmod 600 ~/.claude/credentials/zai.key
 ```
 
 ### "Permission denied"
 
 **Cause**: Cannot write to configuration directory.
 
-**Solution**: Ensure you have write permissions to `~/.config/claude-code/`:
+**Solution**: Ensure you have write permissions:
 
 ```bash
-chmod 755 ~/.config/claude-code
+chmod 755 ~/.claude
+chmod 755 ~/.claude/credentials
+```
+
+### Stale settings after switching
+
+**Cause**: Previous provider's environment variables persisted.
+
+**Solution**: This was fixed in v0.2.0. Provider switching now completely replaces env settings. If you're on an older version, update:
+
+```bash
+bun update -g @jigonr/claude-switch
 ```
 
 ### Changes not taking effect
@@ -44,10 +60,20 @@ chmod 755 ~/.config/claude-code
 
 ## Debug Mode
 
-For more detailed output, check the configuration files directly:
+Enable debug output by setting the DEBUG environment variable:
 
 ```bash
-cat ~/.config/claude-code/settings.json
+DEBUG=1 claude-switch anthropic
+```
+
+Check configuration files directly:
+
+```bash
+# View switch configuration
+cat ~/.claude/switch-config.json
+
+# View Claude settings (written by claude-switch)
+cat ~/.claude/settings.json
 ```
 
 ## Getting Help

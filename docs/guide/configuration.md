@@ -1,31 +1,56 @@
 # Configuration
 
-## Configuration Files
+## File Locations
 
-claude-switch uses two configuration files:
+claude-switch manages the following files:
 
-### Main Config
+| File | Path | Purpose |
+|------|------|---------|
+| Global config | `~/.claude/switch-config.json` | Provider definitions and current selection |
+| Claude settings | `~/.claude/settings.json` | Environment variables for Claude Code |
+| Credentials | `~/.claude/credentials/` | API key files (mode 0600) |
 
-Location: `~/.config/claude-code/settings.json`
+## Global Configuration
 
-This is the Claude Code CLI configuration file that claude-switch modifies.
+The main configuration file (`~/.claude/switch-config.json`) stores:
 
-### Credentials
+- Available providers and their settings
+- Currently active provider
+- Environment variables for each provider
 
-Location: `~/.config/claude-code/.credentials`
+Example structure:
 
-Stores API credentials securely with restricted permissions (600).
+```json
+{
+  "version": "1.0",
+  "currentProvider": "anthropic",
+  "providers": {
+    "claude-pro-max": {
+      "type": "subscription",
+      "description": "Claude Pro subscription (browser-based)",
+      "settings": {
+        "env": {
+          "API_TIMEOUT_MS": "3000000"
+        }
+      }
+    },
+    "anthropic": {
+      "type": "api",
+      "description": "Anthropic official API",
+      "settings": {
+        "env": {
+          "ANTHROPIC_API_KEY_FILE": "~/.claude/credentials/anthropic.key",
+          "API_TIMEOUT_MS": "3000000"
+        }
+      }
+    }
+  }
+}
+```
 
-## Environment Variables
+## Project-Specific Configuration
 
-| Variable | Description |
-|----------|-------------|
-| `ANTHROPIC_API_KEY` | API key for Anthropic provider |
-| `ZAI_API_KEY` | API key for z.ai provider |
-
-## Project-Specific Config
-
-Create a `.claude-switch.json` in your project root to override global settings:
+Override the global provider for a specific project by creating `.claude-switch.json` in the project root:
 
 ```json
 {
@@ -33,10 +58,22 @@ Create a `.claude-switch.json` in your project root to override global settings:
 }
 ```
 
-This automatically switches to the specified provider when working in that directory.
+Alternatively, use `.claude/config.json` in your project directory.
+
+When you run `claude-switch` in a directory with a project config, it automatically uses that provider without modifying the global configuration.
+
+## Credentials
+
+API keys are stored in separate files under `~/.claude/credentials/`:
+
+- `anthropic.key` - Anthropic API key
+- `zai.key` - z.ai API key
+
+These files have restricted permissions (mode 0600 - owner read/write only).
 
 ## Security
 
-- API keys are stored with 600 permissions
-- Keys are never logged or displayed in full
-- Credentials file is separate from config
+- API keys are stored in separate credential files, not in config
+- Credential files are created with mode 0600 (owner read/write only)
+- API keys are redacted in all log output
+- Path traversal attacks are prevented in all file operations

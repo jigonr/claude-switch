@@ -188,6 +188,7 @@ export class ConfigManager {
 
   /**
    * Write environment settings to Claude Code settings.json
+   * Replaces existing env settings completely to ensure clean provider switching
    */
   async writeClaudeSettings(env: Record<string, string>): Promise<void> {
     const settingsPath = this.getSettingsPath();
@@ -196,7 +197,7 @@ export class ConfigManager {
     const dir = path.dirname(settingsPath);
     await fs.mkdir(dir, { recursive: true });
 
-    // Read existing settings or create new
+    // Read existing settings to preserve non-env properties
     let settings: { env?: Record<string, string> } = {};
     try {
       const content = await fs.readFile(settingsPath, 'utf-8');
@@ -205,11 +206,8 @@ export class ConfigManager {
       // File doesn't exist or is invalid, start fresh
     }
 
-    // Merge environment settings
-    settings.env = {
-      ...settings.env,
-      ...env,
-    };
+    // Replace env settings completely (providers are mutually exclusive)
+    settings.env = { ...env };
 
     // Write settings
     await fs.writeFile(

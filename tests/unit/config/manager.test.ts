@@ -239,8 +239,8 @@ describe('ConfigManager', () => {
       );
     });
 
-    it('should merge with existing settings', async () => {
-      const existingSettings = { env: { EXISTING: 'value' }, other: 'data' };
+    it('should replace existing env settings completely', async () => {
+      const existingSettings = { env: { EXISTING: 'value', OLD_KEY: 'old' }, other: 'data' };
       vi.mocked(fs.mkdir).mockResolvedValue(undefined);
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(existingSettings));
       vi.mocked(fs.writeFile).mockResolvedValue(undefined);
@@ -248,23 +248,40 @@ describe('ConfigManager', () => {
       await manager.writeClaudeSettings({ NEW_KEY: 'new-value' });
 
       const writtenData = JSON.parse(vi.mocked(fs.writeFile).mock.calls[0][1] as string);
+      // Should ONLY have the new key, not the existing ones (providers are mutually exclusive)
       expect(writtenData.env).toEqual({
-        EXISTING: 'value',
         NEW_KEY: 'new-value',
       });
+      // Other non-env settings should be preserved
       expect(writtenData.other).toBe('data');
     });
 
-    it('should overwrite existing env values', async () => {
-      const existingSettings = { env: { API_KEY: 'old-key' } };
+    it('should remove stale GLM model settings when switching providers', async () => {
+      // Simulates switching from z.ai (with GLM models) to claude-pro-max
+      const existingSettings = {
+        env: {
+          ANTHROPIC_API_KEY_FILE: '~/.claude/credentials/zai.key',
+          API_TIMEOUT_MS: '3000000',
+          ANTHROPIC_DEFAULT_OPUS_MODEL: 'glm-4.7',
+          ANTHROPIC_DEFAULT_SONNET_MODEL: 'glm-4.7',
+          ANTHROPIC_DEFAULT_HAIKU_MODEL: 'glm-4.5-air',
+        },
+      };
       vi.mocked(fs.mkdir).mockResolvedValue(undefined);
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(existingSettings));
       vi.mocked(fs.writeFile).mockResolvedValue(undefined);
 
-      await manager.writeClaudeSettings({ API_KEY: 'new-key' });
+      // Switch to claude-pro-max (only has API_TIMEOUT_MS)
+      await manager.writeClaudeSettings({ API_TIMEOUT_MS: '3000000' });
 
       const writtenData = JSON.parse(vi.mocked(fs.writeFile).mock.calls[0][1] as string);
-      expect(writtenData.env.API_KEY).toBe('new-key');
+      // Should NOT contain GLM model overrides (providers are mutually exclusive)
+      expect(writtenData.env).toEqual({
+        API_TIMEOUT_MS: '3000000',
+      });
+      expect(writtenData.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBeUndefined();
+      expect(writtenData.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBeUndefined();
+      expect(writtenData.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBeUndefined();
     });
 
     it('should handle invalid JSON in existing file', async () => {
