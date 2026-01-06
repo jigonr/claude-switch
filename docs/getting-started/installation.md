@@ -2,22 +2,20 @@
 
 ## Prerequisites
 
-- **Bun** (recommended) or Node.js 18+
-- **Claude Code CLI**: Must be installed and configured
+- Node.js 18+ or Bun
+- Claude Code CLI installed
 
-## Install with Bun (Recommended)
+## Install
 
 ```bash
+# Using Bun (recommended)
 bun add -g @jigonr/claude-switch
-```
 
-## Install with npm
-
-```bash
+# Using npm
 npm install -g @jigonr/claude-switch
 ```
 
-## Verify Installation
+## Verify
 
 ```bash
 claude-switch --version
@@ -26,9 +24,7 @@ claude-switch --version
 ## Uninstall
 
 ```bash
-# With Bun
 bun remove -g @jigonr/claude-switch
-
-# With npm
+# or
 npm uninstall -g @jigonr/claude-switch
 ```

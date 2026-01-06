@@ -6,41 +6,26 @@
 claude-switch
 ```
 
-This shows which API provider is currently active.
-
-## Switch Providers
+## Switch Provider
 
 ```bash
-# Switch to Claude Pro (subscription)
-claude-switch claude-pro-max
-
-# Switch to Anthropic API
-claude-switch anthropic
-
-# Switch to z.ai API
-claude-switch z.ai
+claude-switch anthropic      # Anthropic API
+claude-switch claude-pro-max # Claude Pro subscription
+claude-switch z.ai           # z.ai with GLM models
 ```
 
-## List Available Providers
+## List All Providers
 
 ```bash
 claude-switch list
 ```
 
-## Show Detailed Status
+## Project Override
 
-```bash
-claude-switch status
+Create `.claude-switch.json` in your project:
+
+```json
+{"provider": "anthropic"}
 ```
 
-This shows:
-
-- Current active provider
-- Configuration file locations
-- API key status (masked)
-
-## Next Steps
-
-- Learn about [Commands](../guide/commands.md)
-- Configure [Providers](../guide/providers.md)
-- See [Configuration](../guide/configuration.md) options
+The provider switches automatically when you enter that directory.
