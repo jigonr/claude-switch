@@ -2,7 +2,6 @@ name: CI
 
 on:
   push:
-    branches: [main]
     paths:
       - 'src/**'
       - 'tests/**'
@@ -14,9 +13,6 @@ on:
       - 'bun.lock'
       - '.pre-commit-config.yaml'
       - '.github/workflows/**'
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
 
 jobs:
   format:
