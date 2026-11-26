@@ -7,7 +7,8 @@ import { redactApiKey } from '../../../src/utils/logger.js';
 
 describe('redactApiKey', () => {
   it('should redact API keys', () => {
-    const input = 'The key is sk-ant-api03-1234567890abcdefghijklmnopqrstuvwxyz1234567890abcd here';
+    const input =
+      'The key is sk-ant-api03-1234567890abcdefghijklmnopqrstuvwxyz1234567890abcd here';
     const redacted = redactApiKey(input);
 
     expect(redacted).not.toContain('sk-ant');
@@ -22,7 +23,8 @@ describe('redactApiKey', () => {
   });
 
   it('should handle multiple API keys', () => {
-    const input = 'Key 1: sk-ant-api03-abcdefghijklmnopqrstuvwxyz1234567890abcdefghijkl and Key 2: sk-ant-sid01-zyxwvutsrqponmlkjihgfedcba0987654321zyxwvu';
+    const input =
+      'Key 1: sk-ant-api03-abcdefghijklmnopqrstuvwxyz1234567890abcdefghijkl and Key 2: sk-ant-sid01-zyxwvutsrqponmlkjihgfedcba0987654321zyxwvu';
     const redacted = redactApiKey(input);
 
     expect(redacted).not.toContain('sk-ant-api03');

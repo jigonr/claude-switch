@@ -107,7 +107,11 @@ describe('CLI Error Handling', () => {
       await execAsync(`node ${CLI_PATH} invalid-provider`);
       assert.fail('Should have thrown an error');
     } catch (error) {
+      assert.ok(
+        error instanceof Error && 'stderr' in error && 'stdout' in error,
+      );
       const output = error.stderr || error.stdout;
+      assert.ok(typeof output === 'string');
       assert.match(output, /Invalid provider|not found/i);
     }
   });
@@ -118,7 +122,10 @@ describe('CLI Error Handling', () => {
       assert.fail('Should have thrown an error');
     } catch (error) {
       // Combine stdout and stderr to check for suggestions
-      const output = (error.stdout || '') + (error.stderr || '');
+      assert.ok(
+        error instanceof Error && 'stderr' in error && 'stdout' in error,
+      );
+      const output = `${error.stdout || ''}${error.stderr || ''}`;
       assert.match(output, /claude-pro-max|anthropic|z\.ai/);
     }
   });
@@ -128,6 +135,7 @@ describe('CLI Error Handling', () => {
       await execAsync(`node ${CLI_PATH} invalid-provider`);
       assert.fail('Should have thrown an error');
     } catch (error) {
+      assert.ok(error instanceof Error && 'code' in error);
       assert.strictEqual(error.code, 1);
     }
   });
@@ -156,6 +164,7 @@ describe('CLI Provider Switching', () => {
     // Verify status reflects the change
     const { stdout } = await execAsync(`node ${CLI_PATH} status --json`);
     const jsonMatch = stdout.match(/\{[\s\S]*\}/);
+    assert.ok(jsonMatch, 'Should contain JSON output');
     const data = JSON.parse(jsonMatch[0]);
 
     assert.strictEqual(data.provider, 'claude-pro-max');

@@ -30,7 +30,7 @@ const { mockConfig } = vi.hoisted(() => ({
         description: 'Claude Pro subscription',
         settings: { env: { API_TIMEOUT_MS: '3000000' } },
       },
-      'anthropic': {
+      anthropic: {
         type: 'api',
         description: 'Anthropic API',
         settings: { env: { ANTHROPIC_API_KEY: 'test-key' } },
@@ -55,7 +55,7 @@ vi.mock('../../../src/config/detector.js', () => ({
         description: 'Claude Pro subscription',
         settings: { env: { API_TIMEOUT_MS: '3000000' } },
       },
-      'anthropic': {
+      anthropic: {
         type: 'api',
         description: 'Anthropic API',
         settings: { env: { ANTHROPIC_API_KEY: 'test-key' } },
@@ -83,7 +83,7 @@ vi.mock('../../../src/config/manager.js', () => ({
           description: 'Claude Pro subscription',
           settings: { env: { API_TIMEOUT_MS: '3000000' } },
         },
-        'anthropic': {
+        anthropic: {
           type: 'api',
           description: 'Anthropic API',
           settings: { env: { ANTHROPIC_API_KEY: 'test-key' } },
@@ -98,7 +98,9 @@ vi.mock('../../../src/config/manager.js', () => ({
     save: vi.fn().mockResolvedValue(undefined),
     updateProvider: vi.fn().mockResolvedValue(undefined),
     writeClaudeSettings: vi.fn().mockResolvedValue(undefined),
-    getSettingsPath: vi.fn().mockReturnValue('/mock/path/.claude/settings.json'),
+    getSettingsPath: vi
+      .fn()
+      .mockReturnValue('/mock/path/.claude/settings.json'),
   })),
 }));
 
@@ -135,7 +137,9 @@ describe('Switch Command', () => {
 
   describe('switchProvider', () => {
     it('should throw error for invalid provider', async () => {
-      await expect(switchProvider('invalid' as any)).rejects.toThrow(/not found/);
+      await expect(switchProvider('invalid' as any)).rejects.toThrow(
+        /not found/,
+      );
     });
 
     it('should switch to valid provider', async () => {

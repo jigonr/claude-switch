@@ -78,7 +78,8 @@ describe('Project Config Detection', () => {
     it('should return false when no config exists', async () => {
       vi.mocked(fs.access).mockRejectedValue(new Error('ENOENT'));
 
-      const { hasProjectConfig } = await import('../../../src/config/detector.js');
+      const { hasProjectConfig } =
+        await import('../../../src/config/detector.js');
       const result = await hasProjectConfig();
 
       expect(result).toBe(false);
@@ -87,7 +88,8 @@ describe('Project Config Detection', () => {
     it('should return true when project config exists', async () => {
       vi.mocked(fs.access).mockResolvedValueOnce(undefined);
 
-      const { hasProjectConfig } = await import('../../../src/config/detector.js');
+      const { hasProjectConfig } =
+        await import('../../../src/config/detector.js');
       const result = await hasProjectConfig();
 
       expect(result).toBe(true);
@@ -106,7 +108,8 @@ describe('Project Config Detection', () => {
       vi.mocked(fs.mkdir).mockResolvedValue(undefined);
       vi.mocked(fs.writeFile).mockResolvedValue(undefined);
 
-      const { loadConfigWithOverride } = await import('../../../src/config/detector.js');
+      const { loadConfigWithOverride } =
+        await import('../../../src/config/detector.js');
       const config = await loadConfigWithOverride();
 
       expect(config.version).toBe('1.0');
@@ -143,7 +146,8 @@ describe('Project Config Detection', () => {
         .mockResolvedValueOnce(projectConfig) // Project config
         .mockResolvedValueOnce(globalConfig); // Global config
 
-      const { loadConfigWithOverride } = await import('../../../src/config/detector.js');
+      const { loadConfigWithOverride } =
+        await import('../../../src/config/detector.js');
       const config = await loadConfigWithOverride();
 
       expect(config.currentProvider).toBe('anthropic');
@@ -180,7 +184,8 @@ describe('Project Config Detection', () => {
         .mockResolvedValueOnce(projectConfig)
         .mockResolvedValueOnce(globalConfig);
 
-      const { loadConfigWithOverride } = await import('../../../src/config/detector.js');
+      const { loadConfigWithOverride } =
+        await import('../../../src/config/detector.js');
       const config = await loadConfigWithOverride();
 
       // All providers should still be available

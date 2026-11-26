@@ -3,7 +3,11 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { ErrorCode, ClaudeSwitchError, SecurityError } from '../../../src/utils/errors.js';
+import {
+  ErrorCode,
+  ClaudeSwitchError,
+  SecurityError,
+} from '../../../src/utils/errors.js';
 
 describe('ErrorCode', () => {
   it('should have all expected error codes', () => {
@@ -18,7 +22,10 @@ describe('ErrorCode', () => {
 
 describe('ClaudeSwitchError', () => {
   it('should create error with message and code', () => {
-    const error = new ClaudeSwitchError('Test error', ErrorCode.CONFIG_NOT_FOUND);
+    const error = new ClaudeSwitchError(
+      'Test error',
+      ErrorCode.CONFIG_NOT_FOUND,
+    );
 
     expect(error.message).toBe('Test error');
     expect(error.code).toBe(ErrorCode.CONFIG_NOT_FOUND);
@@ -28,7 +35,11 @@ describe('ClaudeSwitchError', () => {
 
   it('should include details when provided', () => {
     const details = { path: '/some/path', reason: 'file not found' };
-    const error = new ClaudeSwitchError('Test error', ErrorCode.PROVIDER_NOT_FOUND, details);
+    const error = new ClaudeSwitchError(
+      'Test error',
+      ErrorCode.PROVIDER_NOT_FOUND,
+      details,
+    );
 
     expect(error.details).toEqual(details);
   });
@@ -58,9 +69,13 @@ describe('ClaudeSwitchError', () => {
 
   it('should preserve error details through catch', () => {
     try {
-      throw new ClaudeSwitchError('Test', ErrorCode.PERMISSION_ERROR, { file: 'test.json' });
+      throw new ClaudeSwitchError('Test', ErrorCode.PERMISSION_ERROR, {
+        file: 'test.json',
+      });
     } catch (error) {
-      expect((error as ClaudeSwitchError).details).toEqual({ file: 'test.json' });
+      expect((error as ClaudeSwitchError).details).toEqual({
+        file: 'test.json',
+      });
     }
   });
 });

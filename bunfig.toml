@@ -1,0 +1,10 @@
+[fmt]
+printWidth = 80
+tabWidth = 2
+singleQuote = true
+jsxSingleQuote = false
+semi = true
+trailingComma = "all"
+arrowParens = "avoid"
+# Generated build/coverage and dependencies are not authored format targets.
+ignorePatterns = ["dist/", "coverage/", "node_modules/"]

@@ -133,7 +133,9 @@ describe('Security Constants', () => {
   });
 
   it('should not match non-sk prefixed strings', () => {
-    expect('api-key-1234567890abcdef1234567890abcdef1234567890').not.toMatch(API_KEY_REDACTION_PATTERN);
+    expect('api-key-1234567890abcdef1234567890abcdef1234567890').not.toMatch(
+      API_KEY_REDACTION_PATTERN,
+    );
   });
 
   it('should have redaction text', () => {
@@ -159,8 +161,14 @@ describe('Environment Variables', () => {
   });
 
   it('should have model override env vars', () => {
-    expect(ENV_VARS.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('ANTHROPIC_DEFAULT_OPUS_MODEL');
-    expect(ENV_VARS.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('ANTHROPIC_DEFAULT_SONNET_MODEL');
-    expect(ENV_VARS.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('ANTHROPIC_DEFAULT_HAIKU_MODEL');
+    expect(ENV_VARS.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe(
+      'ANTHROPIC_DEFAULT_OPUS_MODEL',
+    );
+    expect(ENV_VARS.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe(
+      'ANTHROPIC_DEFAULT_SONNET_MODEL',
+    );
+    expect(ENV_VARS.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe(
+      'ANTHROPIC_DEFAULT_HAIKU_MODEL',
+    );
   });
 });

@@ -30,7 +30,7 @@ const { mockConfig } = vi.hoisted(() => ({
         description: 'Claude Pro subscription',
         settings: { env: { API_TIMEOUT_MS: '3000000' } },
       },
-      'anthropic': {
+      anthropic: {
         type: 'api',
         description: 'Anthropic API',
         settings: { env: { ANTHROPIC_API_KEY: 'test-key' } },
@@ -55,7 +55,7 @@ vi.mock('../../../src/config/detector.js', () => ({
         description: 'Claude Pro subscription',
         settings: { env: { API_TIMEOUT_MS: '3000000' } },
       },
-      'anthropic': {
+      anthropic: {
         type: 'api',
         description: 'Anthropic API',
         settings: { env: { ANTHROPIC_API_KEY: 'test-key' } },

@@ -11,7 +11,11 @@ import {
   ProviderTypeSchema,
   ProjectConfigSchema,
 } from '../../../src/config/schema.js';
-import { validConfig, validProviders, invalidConfigs } from '../../fixtures/config.js';
+import {
+  validConfig,
+  validProviders,
+  invalidConfigs,
+} from '../../fixtures/config.js';
 
 describe('ProviderNameSchema', () => {
   it('should accept valid provider names', () => {
@@ -21,7 +25,9 @@ describe('ProviderNameSchema', () => {
   });
 
   it('should reject invalid provider names', () => {
-    expect(() => ProviderNameSchema.parse('invalid-provider')).toThrow(ZodError);
+    expect(() => ProviderNameSchema.parse('invalid-provider')).toThrow(
+      ZodError,
+    );
     expect(() => ProviderNameSchema.parse('openai')).toThrow(ZodError);
     expect(() => ProviderNameSchema.parse('')).toThrow(ZodError);
   });
@@ -111,15 +117,21 @@ describe('ConfigSchema', () => {
   });
 
   it('should require version 1.0', () => {
-    expect(() => ConfigSchema.parse(invalidConfigs.wrongVersion)).toThrow(ZodError);
+    expect(() => ConfigSchema.parse(invalidConfigs.wrongVersion)).toThrow(
+      ZodError,
+    );
   });
 
   it('should reject missing version', () => {
-    expect(() => ConfigSchema.parse(invalidConfigs.missingVersion)).toThrow(ZodError);
+    expect(() => ConfigSchema.parse(invalidConfigs.missingVersion)).toThrow(
+      ZodError,
+    );
   });
 
   it('should require valid currentProvider', () => {
-    expect(() => ConfigSchema.parse(invalidConfigs.invalidProvider)).toThrow(ZodError);
+    expect(() => ConfigSchema.parse(invalidConfigs.invalidProvider)).toThrow(
+      ZodError,
+    );
   });
 
   it('should require providers object', () => {

@@ -8,15 +8,19 @@ on:
       - 'tests/**'
       - 'package.json'
       - 'tsconfig.json'
-      - 'biome.json'
+      - 'tsup.config.ts'
+      - 'vitest.config.ts'
+      - 'bunfig.toml'
+      - 'bun.lock'
+      - '.pre-commit-config.yaml'
       - '.github/workflows/**'
   pull_request:
     branches: [main]
   workflow_dispatch:
 
 jobs:
-  lint:
-    name: Lint & Format Check
+  format:
+    name: Format Check (Bun)
     runs-on: ubuntu-latest
 
     steps:
@@ -31,11 +35,8 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Run Biome linter
-        run: bun run lint
-
       - name: Check formatting
-        run: bun biome format --diagnostic-level=error .
+        run: bun run format:check
 
   typecheck:
     name: Type Check
@@ -53,13 +54,13 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Run TypeScript type checker
+      - name: Check types with Bun
         run: bun run typecheck
 
   test:
     name: Test
     runs-on: ${{ matrix.os }}
-    needs: [lint, typecheck]
+    needs: [format, typecheck]
 
     strategy:
       matrix:
@@ -103,7 +104,7 @@ jobs:
   build:
     name: Build Check
     runs-on: ubuntu-latest
-    needs: [lint, typecheck]
+    needs: [format, typecheck]
 
     steps:
       - name: Checkout code
@@ -137,13 +138,13 @@ jobs:
   all-checks:
     name: All Checks Passed
     if: always()
-    needs: [lint, typecheck, test, build]
+    needs: [format, typecheck, test, build]
     runs-on: ubuntu-latest
 
     steps:
       - name: Check all jobs
         run: |
-          if [ "${{ needs.lint.result }}" != "success" ] || \
+          if [ "${{ needs.format.result }}" != "success" ] || \
              [ "${{ needs.typecheck.result }}" != "success" ] || \
              [ "${{ needs.test.result }}" != "success" ] || \
              [ "${{ needs.build.result }}" != "success" ]; then

@@ -7,7 +7,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { ConfigManager } from '../../../src/config/manager.js';
-import { ErrorCode, ClaudeSwitchError, SecurityError } from '../../../src/utils/errors.js';
+import {
+  ErrorCode,
+  ClaudeSwitchError,
+  SecurityError,
+} from '../../../src/utils/errors.js';
 import { validConfig, validProviders } from '../../fixtures/config.js';
 
 // Mock the fs module
@@ -84,7 +88,9 @@ describe('ConfigManager', () => {
     });
 
     it('should throw INVALID_CONFIG on invalid config structure', async () => {
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify({ invalid: 'config' }));
+      vi.mocked(fs.readFile).mockResolvedValue(
+        JSON.stringify({ invalid: 'config' }),
+      );
 
       await expect(manager.load()).rejects.toThrow(ClaudeSwitchError);
     });
@@ -97,7 +103,9 @@ describe('ConfigManager', () => {
 
       await manager.save(validConfig);
 
-      expect(fs.mkdir).toHaveBeenCalledWith(path.dirname(testConfigPath), { recursive: true });
+      expect(fs.mkdir).toHaveBeenCalledWith(path.dirname(testConfigPath), {
+        recursive: true,
+      });
       expect(fs.writeFile).toHaveBeenCalledWith(
         testConfigPath,
         JSON.stringify(validConfig, null, 2),
@@ -146,7 +154,9 @@ describe('ConfigManager', () => {
       await manager.updateProvider('anthropic');
 
       expect(fs.writeFile).toHaveBeenCalled();
-      const savedData = JSON.parse(vi.mocked(fs.writeFile).mock.calls[0][1] as string);
+      const savedData = JSON.parse(
+        vi.mocked(fs.writeFile).mock.calls[0][1] as string,
+      );
       expect(savedData.currentProvider).toBe('anthropic');
     });
 
@@ -168,9 +178,13 @@ describe('ConfigManager', () => {
           'claude-pro-max': validConfig.providers['claude-pro-max'],
         },
       };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(configWithOneProvider));
+      vi.mocked(fs.readFile).mockResolvedValue(
+        JSON.stringify(configWithOneProvider),
+      );
 
-      await expect(manager.updateProvider('anthropic')).rejects.toThrow(ClaudeSwitchError);
+      await expect(manager.updateProvider('anthropic')).rejects.toThrow(
+        ClaudeSwitchError,
+      );
       await expect(manager.updateProvider('anthropic')).rejects.toMatchObject({
         code: ErrorCode.PROVIDER_NOT_FOUND,
       });
@@ -240,14 +254,21 @@ describe('ConfigManager', () => {
     });
 
     it('should replace existing env settings completely', async () => {
-      const existingSettings = { env: { EXISTING: 'value', OLD_KEY: 'old' }, other: 'data' };
+      const existingSettings = {
+        env: { EXISTING: 'value', OLD_KEY: 'old' },
+        other: 'data',
+      };
       vi.mocked(fs.mkdir).mockResolvedValue(undefined);
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(existingSettings));
+      vi.mocked(fs.readFile).mockResolvedValue(
+        JSON.stringify(existingSettings),
+      );
       vi.mocked(fs.writeFile).mockResolvedValue(undefined);
 
       await manager.writeClaudeSettings({ NEW_KEY: 'new-value' });
 
-      const writtenData = JSON.parse(vi.mocked(fs.writeFile).mock.calls[0][1] as string);
+      const writtenData = JSON.parse(
+        vi.mocked(fs.writeFile).mock.calls[0][1] as string,
+      );
       // Should ONLY have the new key, not the existing ones (providers are mutually exclusive)
       expect(writtenData.env).toEqual({
         NEW_KEY: 'new-value',
@@ -268,13 +289,17 @@ describe('ConfigManager', () => {
         },
       };
       vi.mocked(fs.mkdir).mockResolvedValue(undefined);
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(existingSettings));
+      vi.mocked(fs.readFile).mockResolvedValue(
+        JSON.stringify(existingSettings),
+      );
       vi.mocked(fs.writeFile).mockResolvedValue(undefined);
 
       // Switch to claude-pro-max (only has API_TIMEOUT_MS)
       await manager.writeClaudeSettings({ API_TIMEOUT_MS: '3000000' });
 
-      const writtenData = JSON.parse(vi.mocked(fs.writeFile).mock.calls[0][1] as string);
+      const writtenData = JSON.parse(
+        vi.mocked(fs.writeFile).mock.calls[0][1] as string,
+      );
       // Should NOT contain GLM model overrides (providers are mutually exclusive)
       expect(writtenData.env).toEqual({
         API_TIMEOUT_MS: '3000000',
@@ -291,7 +316,9 @@ describe('ConfigManager', () => {
 
       await manager.writeClaudeSettings({ API_KEY: 'test-key' });
 
-      const writtenData = JSON.parse(vi.mocked(fs.writeFile).mock.calls[0][1] as string);
+      const writtenData = JSON.parse(
+        vi.mocked(fs.writeFile).mock.calls[0][1] as string,
+      );
       expect(writtenData.env).toEqual({ API_KEY: 'test-key' });
     });
   });

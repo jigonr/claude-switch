@@ -37,15 +37,14 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format --write .",
+    "typecheck": "bun check --no-script -p tsconfig.json && bun check --no-script tsup.config.ts vitest.config.ts && bun check --no-script --allowJs --checkJs tests/integration/cli.test.js",
+    "format": "bun fmt --no-script src tests package.json tsconfig.json tsup.config.ts vitest.config.ts",
+    "format:check": "bun run format --check",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "prerelease": "bun run build && bun run lint && bun run test",
+    "prerelease": "bun run format:check && bun run typecheck && bun run build && bun run test",
     "release": "npm publish --access public"
   },
   "dependencies": {
@@ -60,7 +59,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.2.5",
     "@types/node": "^22.10.6",
     "@types/react": "^18.3.18",
     "@vitest/coverage-v8": "^2.1.8",
